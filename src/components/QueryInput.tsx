@@ -23,15 +23,15 @@ const formatProcessContext = (processes: any[], systemResources: any) => {
   }
 
   // Sort processes by memory usage
-  const sortedProcesses = [...processes].sort((a, b) => b.memoryKb - a.memoryKb);
+  const sortedProcesses = [...processes].sort((a, b) => b.memoryPercent - a.memoryPercent);
   
   const processDetails = sortedProcesses.map(proc => 
     `Process: ${proc.name}
     - PID: ${proc.pid}
     - Status: ${proc.status}
     - User: ${proc.user}
-    - CPU Usage: ${proc.cpuKb.toFixed(2)} KB
-    - Memory Usage: ${proc.memoryKb.toFixed(2)} KB
+    - CPU Usage: ${proc.cpuPercent.toFixed(2)}%
+    - Memory Usage: ${proc.memoryPercent.toFixed(2)}%
     - Start Time: ${proc.startTime}
     - Threads: ${proc.threads}
     - Priority: ${proc.priority}`

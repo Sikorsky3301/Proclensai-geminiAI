@@ -29,8 +29,8 @@ app.get('/processes', async (req: Request, res: Response) => {
       pid: proc.pid,
       name: proc.name,
       status: proc.state,
-      cpuKb: proc.cpu,
-      memoryKb: proc.mem,
+      cpuPercent: parseFloat(proc.cpu.toFixed(2)),
+      memoryPercent: parseFloat(proc.mem.toFixed(2)),
       user: proc.user,
       startTime: new Date(proc.started).toISOString().replace('T', ' ').substring(0, 19),
       threads: 1, // Default to 1 since threads info is not available

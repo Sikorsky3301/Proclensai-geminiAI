@@ -5,8 +5,8 @@ export interface Process {
   pid: number;
   name: string;
   status: string;
-  cpuKb: number;
-  memoryKb: number;
+  cpuPercent: number;
+  memoryPercent: number;
   user: string;
   startTime: string;
   threads: number;

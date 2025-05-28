@@ -61,7 +61,7 @@ export const ProcessTable: React.FC = () => {
     key: keyof Process;
     direction: 'ascending' | 'descending';
   }>({
-    key: 'memoryKb',
+    key: 'memoryPercent',
     direction: 'descending',
   });
   const [currentPage, setCurrentPage] = useState(1);
@@ -95,8 +95,8 @@ export const ProcessTable: React.FC = () => {
             ...(prev[process.pid] || []),
             {
               timestamp: Date.now(),
-              cpu: process.cpuKb,
-              memory: process.memoryKb
+              cpu: process.cpuPercent,
+              memory: process.memoryPercent
             }
           ].slice(-30) // Keep last 30 data points
         }));
@@ -109,8 +109,8 @@ export const ProcessTable: React.FC = () => {
   // Monitor resource usage and set alerts
   useEffect(() => {
     processes.forEach(process => {
-      const isHighCpu = process.cpuKb > 1000; // 1GB CPU threshold
-      const isHighMemory = process.memoryKb > 2000; // 2GB Memory threshold
+      const isHighCpu = process.cpuPercent > 100; // 100% CPU threshold
+      const isHighMemory = process.memoryPercent > 200; // 200% Memory threshold
       
       if (isHighCpu || isHighMemory) {
         setResourceAlerts(prev => ({ ...prev, [process.pid]: true }));
@@ -151,7 +151,7 @@ export const ProcessTable: React.FC = () => {
         process.user.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesStatus = statusFilter === 'all' || process.status === statusFilter;
-      const matchesMemory = process.memoryKb <= memoryThreshold;
+      const matchesMemory = process.memoryPercent <= memoryThreshold;
       const matchesGroup = selectedGroup === 'all' || getProcessGroup(process.pid) === selectedGroup;
       
       return matchesSearch && matchesStatus && matchesMemory && matchesGroup;
@@ -349,14 +349,14 @@ export const ProcessTable: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <span className="text-xs w-24 truncate">{process.name}</span>
                         <Progress 
-                          value={(process.memoryKb / memoryThreshold) * 100} 
+                          value={(process.memoryPercent / memoryThreshold) * 100} 
                           className="flex-1"
                         />
-                        <span className="text-xs w-16 text-right">{process.memoryKb.toFixed(0)} KB</span>
+                        <span className="text-xs w-16 text-right">{process.memoryPercent.toFixed(0)} KB</span>
                       </div>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>{process.name} - {process.memoryKb.toFixed(2)} KB</p>
+                      <p>{process.name} - {process.memoryPercent.toFixed(2)} KB</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -397,15 +397,15 @@ export const ProcessTable: React.FC = () => {
                     </TableHead>
                     <TableHead 
                       className="cursor-pointer hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200 text-right font-semibold whitespace-nowrap"
-                      onClick={() => handleSort('cpuKb')}
+                      onClick={() => handleSort('cpuPercent')}
                     >
-                      CPU (KB) {getSortIndicator('cpuKb')}
+                      CPU (%) {getSortIndicator('cpuPercent')}
                     </TableHead>
                     <TableHead 
                       className="cursor-pointer hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200 text-right font-semibold whitespace-nowrap"
-                      onClick={() => handleSort('memoryKb')}
+                      onClick={() => handleSort('memoryPercent')}
                     >
-                      Memory (KB) {getSortIndicator('memoryKb')}
+                      Memory (%) {getSortIndicator('memoryPercent')}
                     </TableHead>
                     <TableHead 
                       className="cursor-pointer hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200 font-semibold whitespace-nowrap"
@@ -474,8 +474,8 @@ export const ProcessTable: React.FC = () => {
                             {process.status}
                           </span>
                         </TableCell>
-                        <TableCell className="text-right font-medium whitespace-nowrap text-gray-900 dark:text-gray-100">{process.cpuKb.toFixed(2)} K</TableCell>
-                        <TableCell className="text-right font-medium whitespace-nowrap text-gray-900 dark:text-gray-100">{process.memoryKb.toFixed(2)} K</TableCell>
+                        <TableCell className="text-right font-medium whitespace-nowrap text-gray-900 dark:text-gray-100">{process.cpuPercent.toFixed(2)}%</TableCell>
+                        <TableCell className="text-right font-medium whitespace-nowrap text-gray-900 dark:text-gray-100">{process.memoryPercent.toFixed(2)}%</TableCell>
                         <TableCell className="whitespace-nowrap text-gray-700 dark:text-gray-300">{process.startTime}</TableCell>
                         <TableCell className="text-right whitespace-nowrap text-gray-700 dark:text-gray-300">{process.threads}</TableCell>
                         <TableCell className="text-right whitespace-nowrap text-gray-700 dark:text-gray-300">{process.priority}</TableCell>
@@ -534,7 +534,7 @@ export const ProcessTable: React.FC = () => {
                               </Tooltip>
                             </TooltipProvider>
                             
-                            {process.memoryKb > memoryThreshold && (
+                            {process.memoryPercent > memoryThreshold && (
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
@@ -553,8 +553,8 @@ export const ProcessTable: React.FC = () => {
                                     </Badge>
                                   </TooltipTrigger>
                                   <TooltipContent>
-                                    CPU: {process.cpuKb.toFixed(2)} KB
-                                    Memory: {process.memoryKb.toFixed(2)} KB
+                                    CPU: {process.cpuPercent.toFixed(2)}%
+                                    Memory: {process.memoryPercent.toFixed(2)}%
                                   </TooltipContent>
                                 </Tooltip>
                               </TooltipProvider>
@@ -673,12 +673,12 @@ export const ProcessTable: React.FC = () => {
             
             <div>
               <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">CPU Usage</h4>
-              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{selectedProcess.cpuKb.toFixed(2)} KB</p>
+              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{selectedProcess.cpuPercent.toFixed(2)}%</p>
             </div>
             
             <div>
               <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Memory Usage</h4>
-              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{selectedProcess.memoryKb.toFixed(2)} KB</p>
+              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{selectedProcess.memoryPercent.toFixed(2)}%</p>
             </div>
             
             <div>
